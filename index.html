@@ -399,7 +399,7 @@ function renderFunnel(c) {
     { name: '海选赛', detail: `${c.haixuan_points} 城 · 单点晋级约 ${c.haixuan_per_point.toFixed(1)} 组`, families: c.haixuan_families, promoted: c.haixuan_promoted, rate: params.conv_haixuan, color: '#F59E0B' },
     { name: '城市赛', detail: `${c.city_points} 城 · 单点晋级约 ${c.city_per_point.toFixed(1)} 组`, families: c.city_families, promoted: c.city_promoted, rate: params.conv_city, color: '#2563EB' },
     { name: '战区赛', detail: `${c.fusai_points} 战区 · 单点晋级约 ${c.fusai_per_point.toFixed(1)} 组`, families: c.fusai_families, promoted: c.fusai_promoted, rate: params.conv_fusai, color: '#059669' },
-    { name: '决赛', detail: `${c.juesai_points} 地点 · 单点晋级约 ${c.juesai_per_point.toFixed(1)} 组`, families: c.juesai_families, promoted: c.juesai_promoted, rate: params.conv_juesai, color: '#7C3AED' },
+    { name: '决赛', detail: `${c.juesai_points} 地点`, families: c.juesai_families, promoted: c.juesai_promoted, promotedLabel: '入选家庭', rate: params.conv_juesai, color: '#7C3AED' },
   ];
   
   let html = '';
@@ -418,7 +418,7 @@ function renderFunnel(c) {
         </div>
         <div class="stage-value">
           <div class="big promote">${fmt(s.promoted)}</div>
-          <div class="small">晋级家庭</div>
+          <div class="small">${s.promotedLabel || '晋级家庭'}</div>
         </div>
       </div>
     `;
@@ -477,7 +477,7 @@ function renderSummary(c) {
       <tr><td>战区赛参赛家庭</td><td>${fmt(c.fusai_families)} 组</td><td>= 城市赛晋级</td></tr>
       <tr><td>战区赛晋级家庭</td><td>${fmt(c.fusai_promoted)} 组</td><td>转化率 ${fmtPct(params.conv_fusai)} · ${c.fusai_points} 战区 · 单点晋级 ${c.fusai_per_point.toFixed(1)} 组</td></tr>
       <tr><td>决赛参赛家庭</td><td>${fmt(c.juesai_families)} 组</td><td>= 战区赛晋级</td></tr>
-      <tr><td>决赛晋级家庭</td><td>${fmt(c.juesai_promoted)} 组</td><td>转化率 ${fmtPct(params.conv_juesai)} · ${c.juesai_points} 地点 · 单点晋级 ${c.juesai_per_point.toFixed(1)} 组</td></tr>
+      <tr><td>决赛入选家庭</td><td>${fmt(c.juesai_promoted)} 组</td><td>转化率 ${fmtPct(params.conv_juesai)} · ${c.juesai_points} 地点</td></tr>
       <tr><td>围观家庭</td><td>${fmt(c.watch_families)} 组</td><td>围观/参赛 = ${params.watch_ratio}</td></tr>
       <tr><td>围观购机家庭</td><td>${fmt(c.watch_buyers)} 组</td><td>转化率 ${fmtPct(params.watch_buy)}</td></tr>
       <tr><td>参赛收入流水</td><td>${fmtMoney(c.contest_revenue)}</td><td>退货率 ${fmtPct(params.return_rate)}</td></tr>
