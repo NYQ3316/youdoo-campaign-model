@@ -629,9 +629,11 @@ const CB_DOC = 'current';
 let cbApp = null, cbDb = null, cbReady = false;
 
 async function initCloudBase() {
-  if (!CB_ENV_ID || typeof cloudbase === 'undefined') return false;
+  // 兼容 v1 SDK 的两种全局变量名（cloudbase / tcb）
+  const cb = typeof cloudbase !== 'undefined' ? cloudbase : (typeof tcb !== 'undefined' ? tcb : null);
+  if (!CB_ENV_ID || !cb) return false;
   try {
-    cbApp = cloudbase.init({ env: CB_ENV_ID });
+    cbApp = cb.init({ env: CB_ENV_ID });
     const auth = cbApp.auth();
     await auth.signInAnonymously();
     cbDb = cbApp.database();
@@ -653,12 +655,8 @@ async function cbLoadParams() {
 
 async function cbSaveParams() {
   if (!cbReady) throw new Error('CloudBase 未就绪');
-  try {
-    const r = await cbDb.collection(CB_COLL).doc(CB_DOC).update({ params });
-    if (r.updated === 0) await cbDb.collection(CB_COLL).doc(CB_DOC).set({ params });
-  } catch (e) {
-    await cbDb.collection(CB_COLL).doc(CB_DOC).set({ params });
-  }
+  // set 为 upsert：文档存在则替换内容，不存在则创建（_id 固定为 current）
+  await cbDb.collection(CB_COLL).doc(CB_DOC).set({ params });
 }
 
 // ===== GitHub 令牌存储（回退方案：CB_ENV_ID 为空时使用，每端需输入一次 token）=====
