@@ -246,39 +246,39 @@ let params = { ...defaults };
 // ========== 参数配置 ==========
 const paramConfig = [
   { group: "销售政策", items: [
-    { key: "cities", label: "海选总城市数", min: 10, max: 100, step: 5, unit: "个", hint: "与单城配额相乘 = 限量台数" },
-    { key: "quota", label: "单个城市配额", min: 20, max: 200, step: 10, unit: "台", hint: "与城市数相乘 = 限量台数" },
+    { key: "cities", label: "海选总城市数", min: 10, max: 200, step: 5, unit: "个", hint: "与单城配额相乘 = 限量台数" },
+    { key: "quota", label: "单个城市配额", min: 20, max: 400, step: 10, unit: "台", hint: "与城市数相乘 = 限量台数" },
   ]},
   { group: "赛区结构", items: [
-    { key: "city_count", label: "城市赛城市数", min: 4, max: 30, step: 1, unit: "个", hint: "承接城市赛的城市数量" },
-    { key: "zone_count", label: "战区数量", min: 3, max: 15, step: 1, unit: "个", hint: "战区赛的战区数量" },
-    { key: "final_venues", label: "决赛地点数", min: 1, max: 3, step: 1, unit: "个", hint: "全国总决赛举办地数量" },
+    { key: "city_count", label: "城市赛城市数", min: 4, max: 60, step: 1, unit: "个", hint: "承接城市赛的城市数量" },
+    { key: "zone_count", label: "战区数量", min: 3, max: 30, step: 1, unit: "个", hint: "战区赛的战区数量" },
+    { key: "final_venues", label: "决赛地点数", min: 1, max: 6, step: 1, unit: "个", hint: "全国总决赛举办地数量" },
   ]},
   { group: "漏斗转化率", items: [
-    { key: "conv_haixuan", label: "海选 → 城市赛", min: 0.1, max: 0.8, step: 0.01, unit: "", format: "pct" },
-    { key: "conv_city", label: "城市赛 → 复赛", min: 0.1, max: 0.8, step: 0.01, unit: "", format: "pct" },
-    { key: "conv_fusai", label: "复赛 → 决赛", min: 0.1, max: 0.8, step: 0.01, unit: "", format: "pct" },
-    { key: "conv_juesai", label: "决赛晋级率", min: 0.1, max: 0.8, step: 0.01, unit: "", format: "pct" },
+    { key: "conv_haixuan", label: "海选 → 城市赛", min: 0.1, max: 1.0, step: 0.01, unit: "", format: "pct" },
+    { key: "conv_city", label: "城市赛 → 战区赛", min: 0.1, max: 1.0, step: 0.01, unit: "", format: "pct" },
+    { key: "conv_fusai", label: "战区赛 → 决赛", min: 0.1, max: 1.0, step: 0.01, unit: "", format: "pct" },
+    { key: "conv_juesai", label: "决赛入选率", min: 0.1, max: 1.0, step: 0.01, unit: "", format: "pct" },
   ]},
   { group: "流量参数", items: [
-    { key: "watch_ratio", label: "围观/参赛比", min: 1, max: 30, step: 1, unit: "倍" },
-    { key: "watch_buy", label: "围观购机转化率", min: 0.005, max: 0.1, step: 0.005, unit: "", format: "pct" },
+    { key: "watch_ratio", label: "围观/参赛比", min: 1, max: 60, step: 1, unit: "倍" },
+    { key: "watch_buy", label: "围观购机转化率", min: 0.005, max: 0.2, step: 0.005, unit: "", format: "pct" },
   ]},
   { group: "财务参数", items: [
-    { key: "price", label: "机器单价", min: 999, max: 2999, step: 100, unit: "元" },
-    { key: "deposit", label: "带回家体验押金", min: 0, max: 500, step: 10, unit: "元" },
-    { key: "return_rate", label: "退货率", min: 0.1, max: 0.6, step: 0.01, unit: "", format: "pct" },
-    { key: "depreciation", label: "折旧率", min: 0, max: 0.2, step: 0.01, unit: "", format: "pct" },
-    { key: "bad_debt", label: "坏账率", min: 0, max: 0.1, step: 0.01, unit: "", format: "pct" },
+    { key: "price", label: "机器单价", min: 999, max: 5998, step: 100, unit: "元" },
+    { key: "deposit", label: "带回家体验押金", min: 0, max: 1000, step: 10, unit: "元" },
+    { key: "return_rate", label: "退货率", min: 0.1, max: 1.0, step: 0.01, unit: "", format: "pct" },
+    { key: "depreciation", label: "折旧率", min: 0, max: 0.4, step: 0.01, unit: "", format: "pct" },
+    { key: "bad_debt", label: "坏账率", min: 0, max: 0.2, step: 0.01, unit: "", format: "pct" },
   ]},
   { group: "时间参数", items: [
-    { key: "match_duration", label: "单场时长", min: 5, max: 30, step: 1, unit: "分钟" },
-    { key: "game_duration", label: "单游戏时长", min: 2, max: 10, step: 1, unit: "分钟" },
-    { key: "game_count", label: "游戏数量", min: 1, max: 6, step: 1, unit: "个" },
-    { key: "families_per_match", label: "单次比赛家庭", min: 1, max: 4, step: 1, unit: "组" },
-    { key: "daily_hours", label: "日均运营时长", min: 2, max: 10, step: 0.25, unit: "小时" },
-    { key: "haixuan_days", label: "海选天数", min: 1, max: 10, step: 1, unit: "天" },
-    { key: "daily_matches", label: "每天场次", min: 10, max: 100, step: 2, unit: "场" },
+    { key: "match_duration", label: "单场时长", min: 5, max: 60, step: 1, unit: "分钟" },
+    { key: "game_duration", label: "单游戏时长", min: 2, max: 20, step: 1, unit: "分钟" },
+    { key: "game_count", label: "游戏数量", min: 1, max: 12, step: 1, unit: "个" },
+    { key: "families_per_match", label: "单次比赛家庭", min: 1, max: 8, step: 1, unit: "组" },
+    { key: "daily_hours", label: "日均运营时长", min: 2, max: 20, step: 0.25, unit: "小时" },
+    { key: "haixuan_days", label: "海选天数", min: 1, max: 20, step: 1, unit: "天" },
+    { key: "daily_matches", label: "每天场次", min: 10, max: 200, step: 2, unit: "场" },
   ]}
 ];
 
