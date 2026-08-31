@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Youdoo Box 全国赛事数学模型 · 汇报版</title>
+<style>
+  :root{
+    --brand:#F59E0B; --brand-deep:#D97706; --brand-soft:#FEF3C7;
+    --accent:#2563EB; --accent-soft:#DBEAFE;
+    --ink:#0F172A; --ink-2:#334155; --muted:#64748B; --muted-2:#94A3B8;
+    --bg:#F1F5F9; --card:#FFFFFF; --line:#E2E8F0; --line-2:#CBD5E1;
+    --ok:#059669; --ok-soft:#D1FAE5; --warn:#DC2626; --warn-soft:#FEE2E2;
+    --side:#0F172A; --side-2:#1E293B; --side-line:#334155; --side-text:#CBD5E1;
+    --maxw:1500px;
+    --shadow-sm:0 1px 2px rgba(15,23,42,.05);
+    --shadow-md:0 4px 12px rgba(15,23,42,.07),0 1px 3px rgba(15,23,42,.05);
+    --shadow-lg:0 12px 28px rgba(15,23,42,.10),0 4px 8px rgba(15,23,42,.05);
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;color:var(--ink);background:var(--bg);line-height:1.6;font-size:15px;-webkit-font-smoothing:antialiased;}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 28px;}
+
+  /* ===== Hero ===== */
+  .hero{background:linear-gradient(115deg,#0F172A 0%,#1E293B 45%,#334155 100%);color:#fff;padding:44px 28px 88px;position:relative;overflow:hidden;}
+  .hero::before{content:"";position:absolute;right:-120px;top:-120px;width:420px;height:420px;border-radius:50%;background:radial-gradient(circle,rgba(245,158,11,.22) 0%,transparent 70%);}
+  .hero::after{content:"";position:absolute;left:-80px;bottom:-140px;width:360px;height:360px;border-radius:50%;background:radial-gradient(circle,rgba(37,99,235,.18) 0%,transparent 70%);}
+  .hero .wrap{position:relative;z-index:1;display:flex;flex-direction:column;gap:14px;}
+  .eyebrow{font-size:12px;letter-spacing:4px;font-weight:700;color:#FCD34D;text-transform:uppercase;display:flex;align-items:center;gap:10px;}
+  .eyebrow::before{content:"";display:inline-block;width:26px;height:2px;background:#FCD34D;}
+  .hero h1{font-size:34px;line-height:1.2;margin:0;font-weight:800;color:#fff;letter-spacing:.5px;}
+  .hero .sub{font-size:15px;font-weight:500;color:#CBD5E1;max-width:760px;}
+  .hero .tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;}
+  .hero .tags span{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);padding:5px 14px;border-radius:999px;font-size:12px;font-weight:600;color:#E2E8F0;backdrop-filter:blur(4px);}
+  .hero .tags span b{color:#FCD34D;font-weight:700;}
+
+  /* ===== KPI ===== */
+  .kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:-56px;position:relative;z-index:2;}
+  .kpi-card{background:var(--card);border-radius:14px;padding:20px 22px;box-shadow:var(--shadow-md);border:1px solid var(--line);position:relative;overflow:hidden;}
+  .kpi-card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:linear-gradient(180deg,var(--brand),var(--brand-deep));}
+  .kpi-card .label{font-size:12.5px;color:var(--muted);margin-bottom:6px;font-weight:600;letter-spacing:.5px;}
+  .kpi-card .value{font-size:30px;font-weight:800;color:var(--ink);line-height:1.15;font-variant-numeric:tabular-nums;}
+  .kpi-card .value em{font-style:normal;font-size:15px;color:var(--muted);font-weight:600;margin-left:2px;}
+  .kpi-card .sub{font-size:12px;color:var(--muted);margin-top:6px;}
+  @media(max-width:1000px){.kpi-grid{grid-template-columns:repeat(2,1fr);}}
+
+  /* ===== 主布局 ===== */
+  .main{display:grid;grid-template-columns:340px 1fr;gap:24px;padding:28px 0 40px;align-items:start;}
+  @media(max-width:1080px){.main{grid-template-columns:1fr;}}
+
+  /* ===== 侧边参数面板（深色） ===== */
+  .panel{background:var(--side);border-radius:16px;box-shadow:var(--shadow-lg);position:sticky;top:20px;overflow:hidden;}
+  .panel-header{padding:16px 20px;border-bottom:1px solid var(--side-line);display:flex;align-items:center;justify-content:space-between;background:var(--side-2);}
+  .panel-header h3{margin:0;font-size:15px;font-weight:700;color:#F1F5F9;display:flex;align-items:center;gap:8px;}
+  .panel-header h3::before{content:"";width:8px;height:8px;border-radius:2px;background:var(--brand);}
+  .panel-body{padding:20px;}
+  @media(max-width:1080px){.panel{position:static;}}
+
+  .param-group{margin-bottom:22px;}
+  .param-group:last-child{margin-bottom:0;}
+  .param-group-title{font-size:12px;font-weight:700;color:#FCD34D;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--side-line);letter-spacing:1.5px;}
+  .param-item{margin-bottom:16px;}
+  .param-item label{display:flex;justify-content:space-between;align-items:baseline;font-size:13px;margin-bottom:6px;color:var(--side-text);}
+  .param-item label span:last-child{font-weight:700;color:#FCD34D;font-variant-numeric:tabular-nums;}
+  .param-input-row{display:flex;gap:10px;align-items:center;}
+  .param-input-row input[type="range"]{flex:1;accent-color:var(--brand);height:4px;}
+  .param-input-row input[type="number"]{width:82px;flex:none;padding:6px 8px;border:1px solid var(--side-line);border-radius:8px;font-size:13px;background:var(--side-2);color:#F1F5F9;font-variant-numeric:tabular-nums;}
+  .param-input-row input[type="number"]:focus{outline:none;border-color:var(--brand);}
+  .param-item .hint{font-size:11px;color:var(--muted-2);margin-top:4px;}
+  .param-linked{font-size:11px;color:#34D399;margin-top:4px;}
+  .limit-card{background:var(--side-2);border:1px solid var(--side-line);border-radius:12px;padding:12px 14px;margin-bottom:16px;}
+  .limit-card .t{font-size:12px;color:var(--muted-2);margin-bottom:2px;}
+  .limit-card .v{font-size:22px;font-weight:800;color:#FCD34D;font-variant-numeric:tabular-nums;}
+  .limit-card .f{font-size:11px;color:var(--side-text);margin-top:4px;font-variant-numeric:tabular-nums;}
+
+  .btn-group{display:flex;align-items:center;gap:8px;}
+  .btn-save,.btn-saved,.btn-reset{padding:7px 14px;border-radius:8px;font-size:12.5px;font-weight:600;cursor:pointer;transition:all .15s;}
+  .btn-save{background:var(--brand);border:1px solid var(--brand);color:#1F2937;}
+  .btn-save:hover{background:var(--brand-deep);border-color:var(--brand-deep);color:#fff;}
+  .btn-saved{background:var(--ok);border:1px solid var(--ok);color:#fff;}
+  .btn-reset{background:transparent;border:1px solid var(--side-line);color:var(--side-text);}
+  .btn-reset:hover{border-color:#FCD34D;color:#FCD34D;}
+
+  /* ===== 内容区块 ===== */
+  .section{margin-bottom:26px;}
+  .section-title{font-size:17px;font-weight:800;margin:0 0 14px;color:var(--ink);display:flex;align-items:center;gap:10px;letter-spacing:.3px;}
+  .section-title .num{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:8px;background:linear-gradient(135deg,var(--brand),var(--brand-deep));color:#fff;font-size:12px;font-weight:800;box-shadow:var(--shadow-sm);}
+  .section-title .tag{font-size:11px;font-weight:600;color:var(--muted);background:var(--card);border:1px solid var(--line);padding:3px 10px;border-radius:999px;margin-left:2px;}
+
+  .card-panel{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow-sm);overflow:hidden;}
+
+  /* ===== 漏斗 ===== */
+  .funnel{display:flex;flex-direction:column;padding:8px 0;}
+  .funnel-stage{display:grid;grid-template-columns:150px 1fr 130px 130px;align-items:center;gap:18px;padding:16px 24px;position:relative;transition:background .15s;}
+  .funnel-stage:hover{background:#F8FAFC;}
+  .funnel-stage + .funnel-stage{border-top:1px dashed var(--line);}
+  .funnel-stage .stage-name{font-weight:700;font-size:15px;color:var(--ink);display:flex;align-items:center;gap:8px;}
+  .funnel-stage .stage-name .dot{width:9px;height:9px;border-radius:50%;flex:none;}
+  .funnel-stage .stage-detail{font-size:12px;color:var(--muted);margin-top:2px;}
+  .funnel-stage .stage-bar{height:8px;border-radius:999px;background:var(--bg);overflow:hidden;position:relative;}
+  .funnel-stage .stage-bar i{position:absolute;left:0;top:0;bottom:0;border-radius:999px;background:linear-gradient(90deg,var(--accent),var(--brand));}
+  .funnel-stage .stage-value{text-align:right;}
+  .funnel-stage .stage-value .big{font-size:22px;font-weight:800;color:var(--ink);line-height:1.2;font-variant-numeric:tabular-nums;}
+  .funnel-stage .stage-value .big.promote{color:var(--brand-deep);}
+  .funnel-stage .stage-value .small{font-size:11px;color:var(--muted);}
+  .funnel-arrow{display:flex;align-items:center;gap:10px;padding:6px 24px 6px 174px;}
+  .funnel-arrow .rate{display:inline-flex;align-items:center;gap:6px;background:var(--brand-soft);color:var(--brand-deep);padding:3px 12px;border-radius:999px;font-weight:700;font-size:12px;}
+  .funnel-arrow .rate::before{content:"▼";font-size:9px;}
+
+  /* ===== 财务 ===== */
+  .finance-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px;align-items:stretch;}
+  @media(max-width:760px){.finance-grid{grid-template-columns:1fr;}}
+  .finance-card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px 22px;box-shadow:var(--shadow-sm);position:relative;overflow:hidden;display:flex;flex-direction:column;}
+  .finance-card::before{content:"";position:absolute;left:0;top:0;right:0;height:4px;}
+  .finance-card.fc-a::before{background:linear-gradient(90deg,var(--accent),#60A5FA);}
+  .finance-card.fc-b::before{background:linear-gradient(90deg,var(--brand),#FBBF24);}
+  .finance-card h4{margin:0 0 14px;font-size:15px;font-weight:700;color:var(--ink);display:flex;align-items:center;justify-content:space-between;}
+  .finance-card h4 .badge{font-size:11px;font-weight:600;padding:3px 10px;border-radius:999px;background:var(--bg);color:var(--muted);}
+  .finance-row{display:flex;justify-content:space-between;align-items:baseline;padding:9px 0;border-bottom:1px dashed var(--line);font-size:14px;}
+  .finance-row:last-of-type{border-bottom:none;}
+  .finance-row .k{color:var(--muted);}
+  .finance-row .v{font-weight:700;font-variant-numeric:tabular-nums;}
+  .finance-row .v.negative{color:var(--warn);}
+  .finance-row .v.positive{color:var(--ok);}
+  .finance-total{margin-top:auto;padding:14px 16px;border-radius:10px;background:linear-gradient(135deg,#0F172A,#1E293B);display:flex;justify-content:space-between;align-items:baseline;}
+  .finance-total .k{color:#CBD5E1;font-size:13px;font-weight:600;}
+  .finance-total .v{font-size:22px;color:#FCD34D;font-weight:800;font-variant-numeric:tabular-nums;}
+
+  /* ===== 时间 ===== */
+  .time-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
+  @media(max-width:860px){.time-grid{grid-template-columns:repeat(2,1fr);}}
+  .time-card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;text-align:center;box-shadow:var(--shadow-sm);}
+  .time-card .t{font-size:11.5px;color:var(--muted);margin-bottom:5px;font-weight:600;}
+  .time-card .v{font-size:21px;font-weight:800;color:var(--ink);font-variant-numeric:tabular-nums;}
+  .time-card .v em{font-style:normal;font-size:12px;color:var(--muted);font-weight:600;margin-left:1px;}
+
+  /* ===== 汇总表 ===== */
+  .table-full{width:100%;border-collapse:collapse;font-size:13.5px;}
+  .table-full th,.table-full td{padding:11px 18px;text-align:left;border-bottom:1px solid var(--line);}
+  .table-full th{background:#F8FAFC;font-weight:700;color:var(--ink-2);font-size:12.5px;letter-spacing:.5px;}
+  .table-full tbody tr:hover{background:#F8FAFC;}
+  .table-full tbody tr:last-child td{border-bottom:none;}
+  .table-full td:nth-child(2){font-variant-numeric:tabular-nums;font-weight:600;}
+  .table-full td:nth-child(3){color:var(--muted);font-size:12.5px;}
+  .table-full tr.hl td{background:linear-gradient(90deg,var(--brand-soft),#FFFDF5);font-weight:700;}
+
+  footer{padding:26px 0 44px;color:var(--muted);font-size:12px;text-align:center;}
+  footer .f-row{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="eyebrow">YOUDOO BOX · 全国赛事数学模型</div>
+    <h1>活动机制初版 · 数据校验汇报</h1>
+    <div class="sub">海选赛（城市赛）→ 战区决赛 → 全国总决赛 三层结构 · 参数可调 · 数据实时联动</div>
+    <div class="tags">
+      <span id="heroLimit">限量 <b>5,000</b> 台</span>
+      <span>押金 <b>¥199</b></span>
+      <span>机器单价 <b>¥1,799</b></span>
+      <span id="heroCities">海选 <b>50</b> 城</span>
+      <span>汇报日期 2026-08-31</span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <!-- 核心 KPI -->
+  <div class="kpi-grid" id="kpiGrid"></div>
+
+  <div class="main">
+    <!-- 参数面板 -->
+    <aside class="panel">
+      <div class="panel-header">
+        <h3>可调参数</h3>
+        <div class="btn-group">
+          <button class="btn-save" id="saveBtn" onclick="saveParams()">保存参数</button>
+          <button class="btn-reset" id="resetBtn" onclick="resetParams()" title="恢复到上次保存的参数版本；若无保存记录，则恢复到系统默认值">恢复默认</button>
+        </div>
+      </div>
+      <div class="panel-body" id="paramPanel"></div>
+    </aside>
+
+    <!-- 数据展示 -->
+    <div>
+      <!-- 赛事漏斗 -->
+      <div class="section">
+        <h2 class="section-title"><span class="num">01</span>赛事漏斗 <span class="tag">海选 → 城市赛 → 战区赛 → 决赛</span></h2>
+        <div class="card-panel"><div class="funnel" id="funnelChart"></div></div>
+      </div>
+
+      <!-- 财务测算 -->
+      <div class="section">
+        <h2 class="section-title"><span class="num">02</span>财务测算 <span class="tag">参赛 + 围观</span></h2>
+        <div class="finance-grid" id="financeGrid"></div>
+      </div>
+
+      <!-- 时间与场次 -->
+      <div class="section">
+        <h2 class="section-title"><span class="num">03</span>时间与场次测算 <span class="tag">产能校验</span></h2>
+        <div class="time-grid" id="timeGrid"></div>
+      </div>
+
+      <!-- 数据汇总表 -->
+      <div class="section">
+        <h2 class="section-title"><span class="num">04</span>关键数据汇总 <span class="tag">全链路</span></h2>
+        <div class="card-panel">
+          <table class="table-full" id="summaryTable"></table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="wrap">
+    <div class="f-row">Youdoo Box 全国赛事数学模型 · 汇报版 &nbsp;|&nbsp; 数据来源：城市赛数值（腾讯文档 JzausIHOydWi）&nbsp;|&nbsp; 生成日期 2026-08-31</div>
+  </div>
+</footer>
+
+<script>
+// ========== 默认参数 ==========
+// 注意：限量台数（limit）不再作为参数，而是「海选城市数 × 单城配额」的计算结果，见 calculate()
+const defaults = {
+  // 销售政策
+  deposit: 199, cities: 50, quota: 100, price: 1799,
+  // 赛区结构（城市数/战区数/决赛地点均为参数）
+  city_count: 12, zone_count: 7, final_venues: 1,
+  // 漏斗转化率
+  conv_haixuan: 0.375, conv_city: 0.30, conv_fusai: 0.36, conv_juesai: 0.30,
+  // 流量参数
+  watch_ratio: 10, watch_buy: 0.02,
+  // 财务参数
+  return_rate: 0.40, depreciation: 0.07, bad_debt: 0.02,
+  // 时间参数
+  match_duration: 15, game_duration: 5, game_count: 3, families_per_match: 2,
+  daily_hours: 4.25, haixuan_days: 3, daily_matches: 34
+};
+
+let params = { ...defaults };
+
+// ========== 参数配置 ==========
+const paramConfig = [
+  { group: "销售政策", items: [
+    { key: "cities", label: "海选总城市数", min: 10, max: 100, step: 5, unit: "个", hint: "与单城配额相乘 = 限量台数" },
+    { key: "quota", label: "单个城市配额", min: 20, max: 200, step: 10, unit: "台", hint: "与城市数相乘 = 限量台数" },
+  ]},
+  { group: "赛区结构", items: [
+    { key: "city_count", label: "城市赛城市数", min: 4, max: 30, step: 1, unit: "个", hint: "承接城市赛的城市数量" },
+    { key: "zone_count", label: "战区数量", min: 3, max: 15, step: 1, unit: "个", hint: "战区赛的战区数量" },
+    { key: "final_venues", label: "决赛地点数", min: 1, max: 3, step: 1, unit: "个", hint: "全国总决赛举办地数量" },
+  ]},
+  { group: "漏斗转化率", items: [
+    { key: "conv_haixuan", label: "海选 → 城市赛", min: 0.1, max: 0.8, step: 0.01, unit: "", format: "pct" },
+    { key: "conv_city", label: "城市赛 → 复赛", min: 0.1, max: 0.8, step: 0.01, unit: "", format: "pct" },
+    { key: "conv_fusai", label: "复赛 → 决赛", min: 0.1, max: 0.8, step: 0.01, unit: "", format: "pct" },
+    { key: "conv_juesai", label: "决赛晋级率", min: 0.1, max: 0.8, step: 0.01, unit: "", format: "pct" },
+  ]},
+  { group: "流量参数", items: [
+    { key: "watch_ratio", label: "围观/参赛比", min: 1, max: 30, step: 1, unit: "倍" },
+    { key: "watch_buy", label: "围观购机转化率", min: 0.005, max: 0.1, step: 0.005, unit: "", format: "pct" },
+  ]},
+  { group: "财务参数", items: [
+    { key: "price", label: "机器单价", min: 999, max: 2999, step: 100, unit: "元" },
+    { key: "deposit", label: "带回家体验押金", min: 0, max: 500, step: 10, unit: "元" },
+    { key: "return_rate", label: "退货率", min: 0.1, max: 0.6, step: 0.01, unit: "", format: "pct" },
+    { key: "depreciation", label: "折旧率", min: 0, max: 0.2, step: 0.01, unit: "", format: "pct" },
+    { key: "bad_debt", label: "坏账率", min: 0, max: 0.1, step: 0.01, unit: "", format: "pct" },
+  ]},
+  { group: "时间参数", items: [
+    { key: "match_duration", label: "单场时长", min: 5, max: 30, step: 1, unit: "分钟" },
+    { key: "game_duration", label: "单游戏时长", min: 2, max: 10, step: 1, unit: "分钟" },
+    { key: "game_count", label: "游戏数量", min: 1, max: 6, step: 1, unit: "个" },
+    { key: "families_per_match", label: "单次比赛家庭", min: 1, max: 4, step: 1, unit: "组" },
+    { key: "daily_hours", label: "日均运营时长", min: 2, max: 10, step: 0.25, unit: "小时" },
+    { key: "haixuan_days", label: "海选天数", min: 1, max: 10, step: 1, unit: "天" },
+    { key: "daily_matches", label: "每天场次", min: 10, max: 100, step: 2, unit: "场" },
+  ]}
+];
+
+// ========== 计算函数 ==========
+function calculate() {
+  const p = params;
+  
+  // 限量台数 = 海选城市数 × 单城配额（计算值，非参数）
+  const limit = p.cities * p.quota;
+  
+  // 漏斗
+  const haixuan_families = limit;
+  const haixuan_promoted = Math.round(haixuan_families * p.conv_haixuan);
+  const city_families = haixuan_promoted;
+  const city_promoted = Math.round(city_families * p.conv_city);
+  const fusai_families = city_promoted;
+  const fusai_promoted = Math.round(fusai_families * p.conv_fusai);
+  const juesai_families = fusai_promoted;
+  const juesai_promoted = Math.round(juesai_families * p.conv_juesai);
+  
+  // 赛区数量（均为参数，非派生值）
+  const haixuan_points = p.cities;
+  const city_points = p.city_count;
+  const fusai_points = p.zone_count;
+  const juesai_points = p.final_venues;
+
+  // 单点晋级 = 该阶段晋级家庭 ÷ 该阶段赛区数量
+  const haixuan_per_point = haixuan_promoted / Math.max(0.0001, haixuan_points);
+  const city_per_point = city_promoted / Math.max(0.0001, city_points);
+  const fusai_per_point = fusai_promoted / Math.max(0.0001, fusai_points);
+  const juesai_per_point = juesai_promoted / Math.max(0.0001, juesai_points);
+  
+  // 围观
+  const watch_families = haixuan_families * p.watch_ratio;
+  const watch_buyers = Math.round(watch_families * p.watch_buy);
+  
+  // 财务
+  const contest_revenue = haixuan_families * p.price;
+  const contest_return_count = Math.round(haixuan_families * p.return_rate);
+  const contest_return_revenue = contest_return_count * p.price;
+  const contest_final = contest_revenue - contest_return_revenue;
+  
+  const watch_revenue = watch_buyers * p.price;
+  const watch_return_count = Math.round(watch_buyers * p.return_rate);
+  const watch_return_revenue = watch_return_count * p.price;
+  const watch_final = watch_revenue - watch_return_revenue;
+  
+  const total_revenue = contest_final + watch_final;
+  const total_deposit = haixuan_families * p.deposit;
+  
+  // 时间
+  const total_matches = p.haixuan_days * p.daily_matches;
+  const total_families_served = total_matches * p.families_per_match;
+  const daily_capacity = p.daily_matches * p.families_per_match;
+  const minutes_per_family = p.match_duration / p.families_per_match;
+  const daily_minutes = p.daily_hours * 60;
+  const max_daily_matches = Math.floor(daily_minutes / p.match_duration);
+  const max_daily_families = max_daily_matches * p.families_per_match;
+  
+  return {
+    limit,
+    haixuan_families, haixuan_promoted,
+    city_families, city_promoted,
+    fusai_families, fusai_promoted,
+    juesai_families, juesai_promoted,
+    haixuan_points, city_points, fusai_points, juesai_points,
+    haixuan_per_point, city_per_point, fusai_per_point, juesai_per_point,
+    watch_families, watch_buyers,
+    contest_revenue, contest_return_count, contest_return_revenue, contest_final,
+    watch_revenue, watch_return_count, watch_return_revenue, watch_final,
+    total_revenue, total_deposit,
+    total_matches, total_families_served, daily_capacity,
+    minutes_per_family, daily_minutes, max_daily_matches, max_daily_families
+  };
+}
+
+// ========== 渲染函数 ==========
+function fmt(n) { return Math.round(n).toLocaleString('zh-CN'); }
+function fmtMoney(n) { return '¥' + fmt(n); }
+function fmtPct(n) { return (n * 100).toFixed(1) + '%'; }
+
+function renderKPI(c) {
+  // 同步顶部标签（限量台数、城市数为动态计算/参数值）
+  const heroLimit = document.getElementById('heroLimit');
+  const heroCities = document.getElementById('heroCities');
+  if (heroLimit) heroLimit.innerHTML = `限量 <b>${fmt(c.limit)}</b> 台`;
+  if (heroCities) heroCities.innerHTML = `海选 <b>${params.cities}</b> 城`;
+
+  const el = document.getElementById('kpiGrid');
+  el.innerHTML = `
+    <div class="kpi-card">
+      <div class="label">总报名家庭</div>
+      <div class="value">${fmt(c.haixuan_families)}<em>组</em></div>
+      <div class="sub">= 海选 ${c.haixuan_points} 城 × 单城 ${params.quota} 台配额</div>
+    </div>
+    <div class="kpi-card">
+      <div class="label">决赛晋级家庭</div>
+      <div class="value">${fmt(c.juesai_promoted)}<em>组</em></div>
+      <div class="sub">从 ${fmt(c.haixuan_families)} 组海选家庭中产生</div>
+    </div>
+    <div class="kpi-card">
+      <div class="label">整体活动总流水</div>
+      <div class="value">${fmtMoney(c.total_revenue)}</div>
+      <div class="sub">参赛 ${fmtMoney(c.contest_final)} + 围观 ${fmtMoney(c.watch_final)}</div>
+    </div>
+    <div class="kpi-card">
+      <div class="label">总押金沉淀</div>
+      <div class="value">${fmtMoney(c.total_deposit)}</div>
+      <div class="sub">押金 ¥${params.deposit} × ${fmt(c.haixuan_families)} 组</div>
+    </div>
+  `;
+}
+
+function renderFunnel(c) {
+  const el = document.getElementById('funnelChart');
+  const maxFam = c.haixuan_families || 1;
+  const stages = [
+    { name: '海选赛', detail: `${c.haixuan_points} 城 · 单点晋级约 ${c.haixuan_per_point.toFixed(1)} 组`, families: c.haixuan_families, promoted: c.haixuan_promoted, rate: params.conv_haixuan, color: '#F59E0B' },
+    { name: '城市赛', detail: `${c.city_points} 城 · 单点晋级约 ${c.city_per_point.toFixed(1)} 组`, families: c.city_families, promoted: c.city_promoted, rate: params.conv_city, color: '#2563EB' },
+    { name: '战区赛', detail: `${c.fusai_points} 战区 · 单点晋级约 ${c.fusai_per_point.toFixed(1)} 组`, families: c.fusai_families, promoted: c.fusai_promoted, rate: params.conv_fusai, color: '#059669' },
+    { name: '决赛', detail: `${c.juesai_points} 地点 · 单点晋级约 ${c.juesai_per_point.toFixed(1)} 组`, families: c.juesai_families, promoted: c.juesai_promoted, rate: params.conv_juesai, color: '#7C3AED' },
+  ];
+  
+  let html = '';
+  stages.forEach((s, i) => {
+    const w = Math.max(4, Math.round(s.families / maxFam * 100));
+    html += `
+      <div class="funnel-stage">
+        <div>
+          <div class="stage-name"><span class="dot" style="background:${s.color}"></span>${s.name}</div>
+          <div class="stage-detail">${s.detail}</div>
+        </div>
+        <div class="stage-bar"><i style="width:${w}%"></i></div>
+        <div class="stage-value">
+          <div class="big">${fmt(s.families)}</div>
+          <div class="small">参赛/报名家庭</div>
+        </div>
+        <div class="stage-value">
+          <div class="big promote">${fmt(s.promoted)}</div>
+          <div class="small">晋级家庭</div>
+        </div>
+      </div>
+    `;
+    if (i < stages.length - 1) {
+      html += `<div class="funnel-arrow"><span class="rate">转化率 ${fmtPct(s.rate)}</span></div>`;
+    }
+  });
+  el.innerHTML = html;
+}
+
+function renderFinance(c) {
+  const el = document.getElementById('financeGrid');
+  el.innerHTML = `
+    <div class="finance-card fc-a">
+      <h4>参赛收入 <span class="badge">报名家庭 × 单价</span></h4>
+      <div class="finance-row"><span class="k">参赛流水</span><span class="v">${fmtMoney(c.contest_revenue)}</span></div>
+      <div class="finance-row"><span class="k">退货数量</span><span class="v negative">${fmt(c.contest_return_count)} 台</span></div>
+      <div class="finance-row"><span class="k">退货流水</span><span class="v negative">-${fmtMoney(c.contest_return_revenue)}</span></div>
+      <div class="finance-total"><span class="k">最终参赛收入</span><span class="v">${fmtMoney(c.contest_final)}</span></div>
+    </div>
+    <div class="finance-card fc-b">
+      <h4>围观收入 <span class="badge">围观家庭 × 转化率</span></h4>
+      <div class="finance-row"><span class="k">围观家庭</span><span class="v">${fmt(c.watch_families)} 组</span></div>
+      <div class="finance-row"><span class="k">围观购机</span><span class="v">${fmt(c.watch_buyers)} 台</span></div>
+      <div class="finance-row"><span class="k">围观流水</span><span class="v">${fmtMoney(c.watch_revenue)}</span></div>
+      <div class="finance-row"><span class="k">退货流水</span><span class="v negative">-${fmtMoney(c.watch_return_revenue)}</span></div>
+      <div class="finance-total"><span class="k">最终围观收入</span><span class="v">${fmtMoney(c.watch_final)}</span></div>
+    </div>
+  `;
+}
+
+function renderTime(c) {
+  const el = document.getElementById('timeGrid');
+  el.innerHTML = `
+    <div class="time-card"><div class="t">单场时长</div><div class="v">${params.match_duration}<em>min</em></div></div>
+    <div class="time-card"><div class="t">单次比赛家庭</div><div class="v">${params.families_per_match}<em>组</em></div></div>
+    <div class="time-card"><div class="t">日均运营时长</div><div class="v">${params.daily_hours}<em>h</em></div></div>
+    <div class="time-card"><div class="t">理论日最大场次</div><div class="v">${c.max_daily_matches}<em>场</em></div></div>
+    <div class="time-card"><div class="t">理论日最大服务</div><div class="v">${c.max_daily_families}<em>组</em></div></div>
+    <div class="time-card"><div class="t">海选总场次</div><div class="v">${c.total_matches}<em>场</em></div></div>
+    <div class="time-card"><div class="t">海选总服务家庭</div><div class="v">${fmt(c.total_families_served)}<em>组</em></div></div>
+    <div class="time-card"><div class="t">单场家庭耗时</div><div class="v">${c.minutes_per_family.toFixed(1)}<em>min</em></div></div>
+  `;
+}
+
+function renderSummary(c) {
+  const el = document.getElementById('summaryTable');
+  el.innerHTML = `
+    <thead><tr><th style="width:32%">指标</th><th style="width:22%">数值</th><th>说明</th></tr></thead>
+    <tbody>
+      <tr class="hl"><td>限量台数（计算值）</td><td>${fmt(c.limit)} 台</td><td>= 海选城市数 ${params.cities} × 单城配额 ${params.quota}</td></tr>
+      <tr><td>海选报名家庭</td><td>${fmt(c.haixuan_families)} 组</td><td>= 限量台数</td></tr>
+      <tr><td>海选晋级家庭</td><td>${fmt(c.haixuan_promoted)} 组</td><td>转化率 ${fmtPct(params.conv_haixuan)} · ${c.haixuan_points} 城 · 单点晋级 ${c.haixuan_per_point.toFixed(1)} 组</td></tr>
+      <tr><td>城市赛参赛家庭</td><td>${fmt(c.city_families)} 组</td><td>= 海选晋级</td></tr>
+      <tr><td>城市赛晋级家庭</td><td>${fmt(c.city_promoted)} 组</td><td>转化率 ${fmtPct(params.conv_city)} · ${c.city_points} 城 · 单点晋级 ${c.city_per_point.toFixed(1)} 组</td></tr>
+      <tr><td>战区赛参赛家庭</td><td>${fmt(c.fusai_families)} 组</td><td>= 城市赛晋级</td></tr>
+      <tr><td>战区赛晋级家庭</td><td>${fmt(c.fusai_promoted)} 组</td><td>转化率 ${fmtPct(params.conv_fusai)} · ${c.fusai_points} 战区 · 单点晋级 ${c.fusai_per_point.toFixed(1)} 组</td></tr>
+      <tr><td>决赛参赛家庭</td><td>${fmt(c.juesai_families)} 组</td><td>= 战区赛晋级</td></tr>
+      <tr><td>决赛晋级家庭</td><td>${fmt(c.juesai_promoted)} 组</td><td>转化率 ${fmtPct(params.conv_juesai)} · ${c.juesai_points} 地点 · 单点晋级 ${c.juesai_per_point.toFixed(1)} 组</td></tr>
+      <tr><td>围观家庭</td><td>${fmt(c.watch_families)} 组</td><td>围观/参赛 = ${params.watch_ratio}</td></tr>
+      <tr><td>围观购机家庭</td><td>${fmt(c.watch_buyers)} 组</td><td>转化率 ${fmtPct(params.watch_buy)}</td></tr>
+      <tr><td>参赛收入流水</td><td>${fmtMoney(c.contest_revenue)}</td><td>退货率 ${fmtPct(params.return_rate)}</td></tr>
+      <tr><td>围观收入流水</td><td>${fmtMoney(c.watch_revenue)}</td><td>退货率 ${fmtPct(params.return_rate)}</td></tr>
+      <tr class="hl"><td>整体活动总流水</td><td>${fmtMoney(c.total_revenue)}</td><td>参赛 ${fmtMoney(c.contest_final)} + 围观 ${fmtMoney(c.watch_final)}</td></tr>
+      <tr><td>总押金沉淀</td><td>${fmtMoney(c.total_deposit)}</td><td>押金 ¥${params.deposit}/组</td></tr>
+    </tbody>
+  `;
+}
+
+function renderParams() {
+  const el = document.getElementById('paramPanel');
+  let html = '';
+  paramConfig.forEach(g => {
+    html += `<div class="param-group"><div class="param-group-title">${g.group}</div>`;
+    // 销售政策组顶部显示限量台数（计算结果，非参数）
+    if (g.group === "销售政策") {
+      html += `
+        <div class="limit-card">
+          <div class="t">限量台数（全国）· 计算结果</div>
+          <div class="v" id="val-limit">${fmt(params.cities * params.quota)} 台</div>
+          <div class="f" id="linked-limit">= ${params.cities} 城 × ${params.quota} 台/城 = ${fmt(params.cities * params.quota)} 台</div>
+        </div>
+      `;
+    }
+    g.items.forEach(item => {
+      const val = params[item.key];
+      const displayVal = item.format === 'pct' ? fmtPct(val) : val;
+      html += `
+        <div class="param-item">
+          <label><span>${item.label}</span><span id="val-${item.key}">${displayVal}${item.unit && item.format !== 'pct' ? item.unit : ''}</span></label>
+          <div class="param-input-row">
+            <input type="range" min="${item.min}" max="${item.max}" step="${item.step}" value="${val}"
+                   oninput="updateParam('${item.key}', this.value, '${item.format || ''}', '${item.unit}', 'range')">
+            <input type="number" min="${item.min}" max="${item.max}" step="${item.step}" value="${val}"
+                   oninput="updateParam('${item.key}', this.value, '${item.format || ''}', '${item.unit}', 'number')">
+          </div>
+          ${item.hint ? `<div class="hint">${item.hint}</div>` : ''}
+        </div>
+      `;
+    });
+    html += `</div>`;
+  });
+  el.innerHTML = html;
+}
+
+function updateParam(key, value, format, unit, source) {
+  const numVal = parseFloat(value);
+  if (isNaN(numVal)) return;
+  params[key] = numVal;
+
+  // 城市数或配额变化时，更新限量台数显示（计算值）
+  updateLimitDisplay();
+
+  // 更新显示值
+  updateLinkedDisplay(key);
+
+  // 同步滑块和输入框
+  if (source === 'range') {
+    syncNumberInput(key);
+  } else if (source === 'number') {
+    syncRangeInput(key);
+  }
+
+  renderAll();
+}
+
+// 更新限量台数（计算结果）显示
+function updateLimitDisplay() {
+  const limit = params.cities * params.quota;
+  const valEl = document.getElementById('val-limit');
+  const linkedEl = document.getElementById('linked-limit');
+  if (valEl) valEl.textContent = fmt(limit) + ' 台';
+  if (linkedEl) linkedEl.textContent = `= ${params.cities} 城 × ${params.quota} 台/城 = ${fmt(limit)} 台`;
+}
+
+function updateLinkedDisplay(key) {
+  const item = findParamConfig(key);
+  if (!item) return;
+  const val = params[key];
+  const displayVal = item.format === 'pct' ? fmtPct(val) : val;
+  const el = document.getElementById(`val-${key}`);
+  if (el) el.textContent = displayVal + (item.unit && item.format !== 'pct' ? item.unit : '');
+}
+
+function syncInput(key) {
+  syncRangeInput(key);
+  syncNumberInput(key);
+}
+
+function syncRangeInput(key) {
+  const inputs = document.querySelectorAll(`input[type="range"][oninput*="'${key}'"]`);
+  inputs.forEach(inp => inp.value = params[key]);
+}
+
+function syncNumberInput(key) {
+  const inputs = document.querySelectorAll(`input[type="number"][oninput*="'${key}'"]`);
+  inputs.forEach(inp => inp.value = params[key]);
+}
+
+function findParamConfig(key) {
+  for (const g of paramConfig) {
+    for (const item of g.items) {
+      if (item.key === key) return item;
+    }
+  }
+  return null;
+}
+
+// 恢复：优先回到上次保存的版本；无保存记录则回到系统默认值
+function resetParams() {
+  const saved = getSavedParams();
+  params = saved ? { ...defaults, ...saved } : { ...defaults };
+  renderParams();
+  renderAll();
+  updateResetButton();
+  showSaveStatus(false);
+}
+
+// 读取已保存的参数版本
+function getSavedParams() {
+  try {
+    const saved = localStorage.getItem('youdoo_box_campaign_params');
+    return saved ? JSON.parse(saved) : null;
+  } catch (e) {
+    return null;
+  }
+}
+
+// 动态更新「恢复」按钮文案：有保存版本显示「恢复保存」，否则显示「恢复默认」
+function updateResetButton() {
+  const btn = document.getElementById('resetBtn');
+  if (!btn) return;
+  if (getSavedParams()) {
+    btn.textContent = '恢复保存';
+    btn.title = '恢复到上次保存的参数版本';
+  } else {
+    btn.textContent = '恢复默认';
+    btn.title = '暂无保存记录，恢复到系统默认参数';
+  }
+}
+
+function saveParams() {
+  try {
+    localStorage.setItem('youdoo_box_campaign_params', JSON.stringify(params));
+    showSaveStatus(true);
+    updateResetButton();
+    setTimeout(() => showSaveStatus(false), 2000);
+  } catch (e) {
+    alert('保存失败：' + e.message);
+  }
+}
+
+function loadSavedParams() {
+  const saved = getSavedParams();
+  if (saved) {
+    params = { ...defaults, ...saved };
+  }
+}
+
+function showSaveStatus(saved) {
+  const btn = document.getElementById('saveBtn');
+  if (saved) {
+    btn.textContent = '已保存 ✓';
+    btn.className = 'btn-saved';
+  } else {
+    btn.textContent = '保存参数';
+    btn.className = 'btn-save';
+  }
+}
+
+function renderAll() {
+  const c = calculate();
+  renderKPI(c);
+  renderFunnel(c);
+  renderFinance(c);
+  renderTime(c);
+  renderSummary(c);
+}
+
+// 初始化
+loadSavedParams();
+renderParams();
+renderAll();
+updateResetButton();
+</script>
+
+</body>
+</html>
