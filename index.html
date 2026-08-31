@@ -222,6 +222,7 @@
   </div>
 </footer>
 
+<script src="//static.cloudbase.net/cloudbase-js-sdk/1.7.2/cloudbase.full.js"></script>
 <script>
 // ========== 默认参数 ==========
 // 注意：限量台数（limit）不再作为参数，而是「海选城市数 × 单城配额」的计算结果，见 calculate()
@@ -620,7 +621,47 @@ function updateResetButton() {
   }
 }
 
-// ===== GitHub 线上存储 =====
+// ===== CloudBase 云存储（一次配置，全局可用，所有访问者无需 token）=====
+// 在下方 CB_ENV_ID 填入 CloudBase 环境 ID 后，参数保存到云端数据库，所有访问者无需输入 token
+const CB_ENV_ID = ''; // ← CloudBase 环境 ID（留空则回退到下方 GitHub 令牌方案）
+const CB_COLL = 'campaign_params';
+const CB_DOC = 'current';
+let cbApp = null, cbDb = null, cbReady = false;
+
+async function initCloudBase() {
+  if (!CB_ENV_ID || typeof cloudbase === 'undefined') return false;
+  try {
+    cbApp = cloudbase.init({ env: CB_ENV_ID });
+    const auth = cbApp.auth();
+    await auth.signInAnonymously();
+    cbDb = cbApp.database();
+    cbReady = true;
+    return true;
+  } catch (e) {
+    console.warn('CloudBase init failed:', e);
+    return false;
+  }
+}
+
+async function cbLoadParams() {
+  if (!cbReady) return null;
+  try {
+    const res = await cbDb.collection(CB_COLL).doc(CB_DOC).get();
+    return (res.data && res.data.length) ? res.data[0].params : null;
+  } catch (e) { return null; }
+}
+
+async function cbSaveParams() {
+  if (!cbReady) throw new Error('CloudBase 未就绪');
+  try {
+    const r = await cbDb.collection(CB_COLL).doc(CB_DOC).update({ params });
+    if (r.updated === 0) await cbDb.collection(CB_COLL).doc(CB_DOC).set({ params });
+  } catch (e) {
+    await cbDb.collection(CB_COLL).doc(CB_DOC).set({ params });
+  }
+}
+
+// ===== GitHub 令牌存储（回退方案：CB_ENV_ID 为空时使用，每端需输入一次 token）=====
 const GH_OWNER = 'NYQ3316';
 const GH_REPO = 'youdoo-campaign-model';
 const GH_FILE = 'saved-params.json';
@@ -646,6 +687,16 @@ async function saveParams() {
   btn.textContent = '保存中…';
   btn.disabled = true;
   try {
+    // 优先 CloudBase 云端（所有访问者无需 token）
+    if (cbReady) {
+      await cbSaveParams();
+      localStorage.setItem('youdoo_box_campaign_params', JSON.stringify(params));
+      showSaveStatus(true);
+      updateResetButton();
+      setTimeout(() => showSaveStatus(false), 2500);
+      return;
+    }
+    // 回退：GitHub 令牌方案（每端首次需输入一次 token）
     let token = getGhToken();
     if (!token) {
       token = prompt('请输入你的 GitHub 个人访问令牌（用于将参数线上保存到仓库 saved-params.json）：\n\n提示：令牌只会保存在本浏览器 localStorage 中，不会出现在公开页面源码里。');
@@ -653,7 +704,6 @@ async function saveParams() {
       localStorage.setItem(GH_TOKEN_KEY, token.trim());
     }
     const url = `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${GH_FILE}`;
-    // 获取当前文件 sha（已存在时更新需携带）
     let sha = null;
     try {
       const head = await fetch(url, { headers: { Authorization: `token ${token}` } });
@@ -673,7 +723,6 @@ async function saveParams() {
       const err = await res.json().catch(() => ({}));
       throw new Error(err.message || ('HTTP ' + res.status));
     }
-    // 同步写入本地缓存，保证离线时也能恢复
     localStorage.setItem('youdoo_box_campaign_params', JSON.stringify(params));
     showSaveStatus(true);
     updateResetButton();
@@ -686,8 +735,14 @@ async function saveParams() {
   }
 }
 
-// 加载参数：优先线上，失败则回退本地缓存
+// 加载参数：优先 CloudBase 云端，失败回退 GitHub 文件 → 本地缓存
 async function loadSavedParams() {
+  try {
+    if (cbReady) {
+      const remote = await cbLoadParams();
+      if (remote) { params = { ...defaults, ...remote }; return; }
+    }
+  } catch (e) {}
   try {
     const remote = await fetchRemoteParams();
     params = { ...defaults, ...remote };
@@ -717,11 +772,11 @@ function renderAll() {
   renderSummary(c);
 }
 
-// 初始化：先渲染默认值，再异步加载线上保存的参数并重绘
+// 初始化：先渲染默认值，初始化云端，再异步加载线上保存的参数并重绘
 renderParams();
 renderAll();
 updateResetButton();
-loadSavedParams().then(() => {
+initCloudBase().then(() => loadSavedParams()).then(() => {
   renderParams();
   renderAll();
   updateResetButton();
