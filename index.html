@@ -178,7 +178,7 @@
       <div class="panel-header">
         <h3>可调参数</h3>
         <div class="btn-group">
-          <button class="btn-save" id="saveBtn" onclick="saveParams()">保存参数</button>
+          <button class="btn-save" id="saveBtn" onclick="saveParams()">线上保存</button>
           <button class="btn-reset" id="resetBtn" onclick="resetParams()" title="恢复到上次保存的参数版本；若无保存记录，则恢复到系统默认值">恢复默认</button>
         </div>
       </div>
@@ -620,31 +620,90 @@ function updateResetButton() {
   }
 }
 
-function saveParams() {
+// ===== GitHub 线上存储 =====
+const GH_OWNER = 'NYQ3316';
+const GH_REPO = 'youdoo-campaign-model';
+const GH_FILE = 'saved-params.json';
+const GH_TOKEN_KEY = 'youdoo_box_gh_token';
+
+function getGhToken() { return localStorage.getItem(GH_TOKEN_KEY) || ''; }
+
+// UTF-8 安全的 base64（避免中文乱码）
+function b64encode(str) { return btoa(unescape(encodeURIComponent(str))); }
+function b64decode(str) { return decodeURIComponent(escape(atob(str))); }
+
+// 从 GitHub 拉取线上保存的参数
+async function fetchRemoteParams() {
+  const url = `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${GH_FILE}`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error('线上暂无保存记录');
+  const data = await res.json();
+  return JSON.parse(b64decode(data.content));
+}
+
+async function saveParams() {
+  const btn = document.getElementById('saveBtn');
+  btn.textContent = '保存中…';
+  btn.disabled = true;
   try {
+    let token = getGhToken();
+    if (!token) {
+      token = prompt('请输入你的 GitHub 个人访问令牌（用于将参数线上保存到仓库 saved-params.json）：\n\n提示：令牌只会保存在本浏览器 localStorage 中，不会出现在公开页面源码里。');
+      if (!token) { showSaveStatus(false); return; }
+      localStorage.setItem(GH_TOKEN_KEY, token.trim());
+    }
+    const url = `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${GH_FILE}`;
+    // 获取当前文件 sha（已存在时更新需携带）
+    let sha = null;
+    try {
+      const head = await fetch(url, { headers: { Authorization: `token ${token}` } });
+      if (head.ok) sha = (await head.json()).sha;
+    } catch (e) {}
+    const body = {
+      message: 'Update saved campaign params',
+      content: b64encode(JSON.stringify(params, null, 2))
+    };
+    if (sha) body.sha = sha;
+    const res = await fetch(url, {
+      method: 'PUT',
+      headers: { Authorization: `token ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.message || ('HTTP ' + res.status));
+    }
+    // 同步写入本地缓存，保证离线时也能恢复
     localStorage.setItem('youdoo_box_campaign_params', JSON.stringify(params));
     showSaveStatus(true);
     updateResetButton();
-    setTimeout(() => showSaveStatus(false), 2000);
+    setTimeout(() => showSaveStatus(false), 2500);
   } catch (e) {
-    alert('保存失败：' + e.message);
+    alert('线上保存失败：' + e.message);
+    showSaveStatus(false);
+  } finally {
+    btn.disabled = false;
   }
 }
 
-function loadSavedParams() {
-  const saved = getSavedParams();
-  if (saved) {
-    params = { ...defaults, ...saved };
+// 加载参数：优先线上，失败则回退本地缓存
+async function loadSavedParams() {
+  try {
+    const remote = await fetchRemoteParams();
+    params = { ...defaults, ...remote };
+  } catch (e) {
+    const saved = getSavedParams();
+    if (saved) params = { ...defaults, ...saved };
   }
 }
 
 function showSaveStatus(saved) {
   const btn = document.getElementById('saveBtn');
   if (saved) {
-    btn.textContent = '已保存 ✓';
+    btn.textContent = '已线上保存 ✓';
     btn.className = 'btn-saved';
   } else {
-    btn.textContent = '保存参数';
+    btn.textContent = '线上保存';
     btn.className = 'btn-save';
   }
 }
@@ -658,11 +717,15 @@ function renderAll() {
   renderSummary(c);
 }
 
-// 初始化
-loadSavedParams();
+// 初始化：先渲染默认值，再异步加载线上保存的参数并重绘
 renderParams();
 renderAll();
 updateResetButton();
+loadSavedParams().then(() => {
+  renderParams();
+  renderAll();
+  updateResetButton();
+});
 </script>
 
 </body>
