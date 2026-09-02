@@ -1,6 +1,6 @@
 {
   "params": {
-    "sales_target": 120,
+    "sales_target": 101,
     "conv_rate": 0.2,
     "days": 3,
     "arenas": 3,
