@@ -1,14 +1,8 @@
 {
   "params": {
-    "sales_target": 101,
-    "conv_rate": 0.2,
-    "days": 3,
-    "arenas": 3,
-    "unit_price": 1799,
-    "venue_cost": 3000,
-    "games": 3,
-    "game_minutes": 5,
-    "switch_buffer": 2
+    "verify": "ok"
   },
-  "talks": {}
+  "talks": {
+    "t": "verify"
+  }
 }
