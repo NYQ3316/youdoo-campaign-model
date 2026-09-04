@@ -271,10 +271,6 @@
   .sc-cost .sum-total .k,.sc-cost .sum-total .v{color:#991B1B;}
   .sc-rev .sum-total .k,.sc-rev .sum-total .v{color:#065F46;}
   .sum-total .v{font-size:19px;font-weight:800;font-variant-numeric:tabular-nums;}
-  /* 不计入投入 / 非收益的行 */
-  .sum-row.is-out{opacity:.85;}
-  .sum-row.is-out .k,.sum-row.is-out .v{text-decoration:line-through;text-decoration-color:var(--line);text-decoration-thickness:1px;}
-  .sum-row.is-out .k .calc{text-decoration:none;display:block;}
 
   .net-card{background:linear-gradient(135deg,#0F172A,#1E293B);border-radius:12px;padding:18px;color:#fff;display:flex;flex-direction:column;justify-content:center;box-shadow:var(--shadow-lg);position:relative;overflow:hidden;}
   .net-card::after{content:"";position:absolute;right:-50px;top:-50px;width:160px;height:160px;border-radius:50%;background:radial-gradient(circle,rgba(245,158,11,.20) 0%,transparent 70%);}
@@ -300,7 +296,27 @@
   footer{padding:26px 0 44px;color:var(--muted);font-size:12px;text-align:center;}
   footer .f-row{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;}
 
+  /* ===== 右侧常驻章节导航栏（总览全局 · 随时切换，条目直显缩略标题） ===== */
+  .toc-nav{position:fixed;right:14px;top:50%;transform:translateY(-50%);z-index:90;display:flex;flex-direction:column;background:rgba(255,255,255,.94);backdrop-filter:blur(6px);border:1px solid var(--line);border-radius:14px;padding:8px 6px;box-shadow:var(--shadow-md);}
+  .toc-nav .tn-cap{font-size:9px;font-weight:800;color:var(--muted-2);letter-spacing:2px;text-align:center;margin-bottom:6px;user-select:none;}
+  .toc-nav .tn-btn{display:flex;align-items:center;gap:7px;width:100%;border:none;background:transparent;padding:4px 8px;border-radius:8px;cursor:pointer;text-align:left;transition:background .15s;}
+  .toc-nav .tn-btn:hover{background:var(--brand-soft);}
+  .toc-nav .tn-btn .tn-no{flex:none;width:22px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:10.5px;font-weight:800;color:var(--muted-2);background:#F1F5F9;transition:background .15s,color .15s;}
+  .toc-nav .tn-btn .tn-txt{flex:1;font-size:11.5px;font-weight:600;color:var(--ink-2);line-height:1.2;white-space:nowrap;}
+  .toc-nav .tn-btn.active{background:linear-gradient(135deg,var(--brand),var(--brand-deep));}
+  .toc-nav .tn-btn.active .tn-no{background:rgba(255,255,255,.22);color:#fff;}
+  .toc-nav .tn-btn.active .tn-txt{color:#fff;font-weight:700;}
+  .toc-nav .tn-sep{height:1px;background:var(--line);margin:6px 4px;}
+  .toc-nav .tn-top{display:flex;align-items:center;gap:7px;width:100%;border:none;background:transparent;padding:4px 8px;border-radius:8px;cursor:pointer;color:var(--muted-2);font-size:12px;font-weight:700;transition:background .15s,color .15s;}
+  .toc-nav .tn-top:hover{background:var(--accent-soft);color:var(--accent);}
+  /* 触屏/窄屏时直显标题文字已足够，无需 tooltip；极窄屏整体隐藏 */
+  @media(max-width:1100px){.toc-nav{display:none;}}
+
+  section[id]{scroll-margin-top:16px;}
+  #top{scroll-margin-top:0;}
+
   @media print{
+    .toc-nav{display:none!important;}
     .hero{padding:20px 0 30px;background:#0F172A!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
     .hero::before,.hero::after,.net-card::after{display:none;}
     .part,.kpi-card,.sum-card,.net-card,.chain-node,.flow-step{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
@@ -312,7 +328,7 @@
 </head>
 <body>
 
-<header class="hero">
+<header class="hero" id="top">
   <div class="wrap">
     <div class="eyebrow">Youdoo Box · 城市赛单点位执行手册</div>
     <h1>悦动成长杯：元气家庭体感运动会</h1>
@@ -320,6 +336,23 @@
     <div class="sub">面向现场执行团队，按本手册执行即可，可直接打印带去点位。</div>
   </div>
 </header>
+
+<!-- 右侧常驻章节导航：总览全局 + 点击切换到对应章节（滚动自动高亮当前章节，条目直显缩略标题） -->
+<nav class="toc-nav" id="tocNav" aria-label="章节导航">
+  <div class="tn-cap">目录</div>
+  <button type="button" class="tn-btn active" data-toc="sec01"><span class="tn-no">01</span><span class="tn-txt">业务逻辑</span></button>
+  <button type="button" class="tn-btn" data-toc="sec02"><span class="tn-no">02</span><span class="tn-txt">活动规则</span></button>
+  <button type="button" class="tn-btn" data-toc="sec03"><span class="tn-no">03</span><span class="tn-txt">场地与大件</span></button>
+  <button type="button" class="tn-btn" data-toc="sec04"><span class="tn-no">04</span><span class="tn-txt">人手分工</span></button>
+  <button type="button" class="tn-btn" data-toc="sec05"><span class="tn-no">05</span><span class="tn-txt">场次与收支</span></button>
+  <button type="button" class="tn-btn" data-toc="sec06"><span class="tn-no">06</span><span class="tn-txt">物料明细</span></button>
+  <button type="button" class="tn-btn" data-toc="sec07"><span class="tn-no">07</span><span class="tn-txt">前期准备</span></button>
+  <button type="button" class="tn-btn" data-toc="sec08"><span class="tn-no">08</span><span class="tn-txt">执行 SOP</span></button>
+  <button type="button" class="tn-btn" data-toc="sec09"><span class="tn-no">09</span><span class="tn-txt">现场预案</span></button>
+  <button type="button" class="tn-btn" data-toc="sec10"><span class="tn-no">10</span><span class="tn-txt">待确认事项</span></button>
+  <div class="tn-sep"></div>
+  <button type="button" class="tn-top" data-toc="top" aria-label="回到顶部"><span>↑</span><span class="tn-txt">回到顶部</span></button>
+</nav>
 
 <div class="wrap">
   <div class="hero-kpis">
@@ -340,7 +373,7 @@
     </div>
   </div>
   <!-- 01 业务逻辑 -->
-  <div class="section">
+  <div class="section" id="sec01">
     <h2 class="section-title"><span class="num">01</span>业务逻辑 <span class="tag">转化主线四步</span></h2>
     <div class="card-panel">
       <div class="kpi3-note">执行分寸：以达成销售目标设计活动时长。场次与天数按第 05 节推算。</div>
@@ -389,7 +422,7 @@
   </div>
 
   <!-- 02 活动规则 -->
-  <div class="section">
+  <div class="section" id="sec02">
     <h2 class="section-title"><span class="num">02</span>活动规则 <span class="tag">六大规则 · 现场必背口径</span></h2>
     <div class="talk-bar">
       <span>带 <b>✎</b> 的话术框可直接点选改写，改完自动存在本机。</span>
@@ -456,7 +489,10 @@
             每一次上场的计分口径对所有家庭完全一致，系统判定，不接受人工干预。
             任何形式的「老用户加分」都会毁掉赛事公信力，直接劝退新家庭 —— <b>这句话要对家长主动讲、大声讲</b>。</li>
         </ul>
-        <div class="note">这条红线对家长也要讲明白：<b>「机器带回家练得越多，您能多打几场，但上场那一刻，所有人都是一个标准。」</b></div>
+        <div class="talk-wrap">
+          <div class="note talk" contenteditable="true" data-talk="fair">这条红线对家长也要讲明白：<b>「机器带回家练得越多，您能多打几场，但上场那一刻，所有人都是一个标准。」</b></div>
+          <div class="talk-tip">✎ 话术可直接点选编辑，自动保存到本机</div>
+        </div>
       </div>
 
       <div class="rule-card">
@@ -468,7 +504,10 @@
           <li><b>现场一律不宣布晋级结果</b> —— 晋级要等城市赛全部结束后由官方统一排名。
             家长追问的标准答复：<b>「分数已记录，可查；城市赛结束后官方统一公布。」</b></li>
         </ul>
-        <div class="note">优胜奖与安慰奖的差距要<b>一眼看得出来</b> —— 优胜奖挂在场内显眼处展示，本身就是给围观家庭的钩子。</div>
+        <div class="talk-wrap">
+          <div class="note talk" contenteditable="true" data-talk="award">优胜奖与安慰奖的差距要<b>一眼看得出来</b> —— 优胜奖挂在场内显眼处展示，本身就是给围观家庭的钩子。</div>
+          <div class="talk-tip">✎ 话术可直接点选编辑，自动保存到本机</div>
+        </div>
       </div>
 
       <div class="rule-card">
@@ -488,15 +527,15 @@
       <div class="rule-card is-focus">
         <h4>六、现场促单（为什么要今天买）</h4>
         <ul>
-          <li><b>专属权益，仅限今日</b>：现场下单加赠 <b>1 年 VIP 会员卡</b>、<b>限定 IP 周边</b>等 ——
+          <li><b>专属权益，仅限今日</b>：现场下单加赠 <b>VIP 会员卡</b>、<b>限定 IP 周边</b>等 ——
             必须明确告知「这个权益只在今天现场下单才有，明天线上买就没有」，<b>活动结束即刻失效</b>。</li>
           <li><b>现场氛围就是最好的销售</b>：安排已购机家长与孩子的现场采访，用真实反馈带动新订单。</li>
           <li><b class="yes">先租后买的体验方案</b>：对想买但还在犹豫、或对一次性付款有压力的家长，给出<b>先租回家体验、满意再买</b>的方案 ——
             这是本场三大成交路径之一。</li>
-          <li><b>家电购机券</b>：现场购机可领渠道方提供的家电购机券<span class="src">（面额待定，建议 ¥500）</span>，用于购买商场其他家电 —— 这是打动渠道的关键一环。</li>
+          <li><b>家电购机券</b>：现场购机可领渠道方提供的家电购机券<span class="src">（面额待定）</span>，用于购买商场其他家电 —— 这是打动渠道的关键一环。</li>
         </ul>
         <div class="talk-wrap">
-          <div class="note talk" contenteditable="true" data-talk="deal">现场话术：「今天现场下单，加赠一年 VIP 和限定周边，明天线上买就没有这个了 —— 权益只限今天。」</div>
+          <div class="note talk" contenteditable="true" data-talk="deal">现场话术：「今天现场下单，加赠 VIP 会员卡和限定周边，明天线上买就没有这个了 —— 权益只限今天。」</div>
           <div class="talk-tip">✎ 话术可直接点选编辑，自动保存到本机</div>
         </div>
       </div>
@@ -504,7 +543,7 @@
   </div>
 
   <!-- 03 场地与大件准备 -->
-  <div class="section">
+  <div class="section" id="sec03">
     <h2 class="section-title"><span class="num">03</span>场地与大件准备 <span class="tag">3*3m / 电视区域 · 设备按游戏区配置</span></h2>
     <div class="card-panel">
       <div class="res-grid">
@@ -594,7 +633,7 @@
   </div>
 
   <!-- 04 人手安排及人员分工 -->
-  <div class="section">
+  <div class="section" id="sec04">
     <h2 class="section-title"><span class="num">04</span>人手安排及人员分工 <span class="tag">每游戏区 1 名业务员 + 1 名总销售</span></h2>
     <div class="card-panel">
       <table class="tbl">
@@ -611,7 +650,7 @@
   </div>
 
   <!-- 05 场次推算与收支小结 -->
-  <div class="section">
+  <div class="section" id="sec05">
     <h2 class="section-title"><span class="num">05</span>场次推算与收支小结 <span class="tag">只填 6 项：销售目标 · 转化率 · 天数 · 游戏区 · 主机单价 · 场地费</span></h2>
     <div class="param-hero">
       <div class="param-hero-head">
@@ -642,7 +681,7 @@
   </div>
 
   <!-- 06 物料明细 -->
-  <div class="section">
+  <div class="section" id="sec06">
     <h2 class="section-title"><span class="num">06</span>物料明细 <span class="tag">按单点位配置 · 标注「几用几备」</span></h2>
     <div class="card-panel">
       <table class="tbl" id="matTable"></table>
@@ -651,7 +690,7 @@
   </div>
 
   <!-- 07 前期准备 -->
-  <div class="section">
+  <div class="section" id="sec07">
     <h2 class="section-title"><span class="num">07</span>前期准备 <span class="tag">按「赛前 N 天」倒排 · 渠道需提前 30 天</span></h2>
     <div class="card-panel">
       <table class="tbl">
@@ -677,7 +716,7 @@
   </div>
 
   <!-- 08 现场执行 SOP -->
-  <div class="section">
+  <div class="section" id="sec08">
     <h2 class="section-title"><span class="num">08</span>现场执行 SOP <span class="tag">当日时间轴 · 各区配合</span></h2>
     <div class="card-panel">
       <table class="tbl">
@@ -699,7 +738,7 @@
   </div>
 
   <!-- 09 现场预案 -->
-  <div class="section">
+  <div class="section" id="sec09">
     <h2 class="section-title"><span class="num">09</span>现场预案 <span class="tag">9 条 · 赛前全员过一遍</span></h2>
     <div class="card-panel">
       <div class="qa-grid">
@@ -840,7 +879,7 @@
   </div>
 
   <!-- 10 待确认事项 -->
-  <div class="section">
+  <div class="section" id="sec10">
     <h2 class="section-title"><span class="num">10</span>待确认事项 <span class="tag">方案定稿前必须锁定</span></h2>
     <div class="todo-box">
       <ul>
@@ -848,7 +887,6 @@
         <li><b>到场礼与现场专属权益的选品</b>：选品与采购方式待定。</li>
         <li><b>AED 配备责任方</b>：场地既有 AED 优先；<b>无 AED 的由举办方配备</b>，赛前 14 天场地确认时锁定。</li>
         <li><b>免责与健康声明的条款版本</b>：法务定稿；明确运动风险与<b>心脏病 / 冠心病不适合参赛</b>告知口径；现场执行是<b>不签不上场</b>。</li>
-        <li><b>体验—购机转化率 20% / 单场 17 分钟</b>：均为经验假设，首场实测后校准。</li>
       </ul>
     </div>
   </div>
@@ -923,7 +961,7 @@ function calculate(){
   // —— 收支小结 ——
   const invest = p.venue_cost; // 点位投入（仅场地费，品牌物料由主办方提供，暂不计入）
   const net = sales_amount - invest;             // 净产出
-  const breakeven = p.unit_price > 0 ? Math.ceil(invest / p.unit_price) : 0; // 回本台数
+  const breakeven = p.unit_price > 0 ? Math.ceil(invest / p.unit_price) : 0; // 投入覆盖台数（内部计算，页面不再展示）
   return {
     match_minutes, families, need_matches,
     matches_per_day, total_matches, coupons_need, minutes_per_day,
@@ -1277,24 +1315,20 @@ function renderSum(c){
       <div class="sum-row"><span class="k">主机销售目标<span class="calc">= 本场计划销售的台数</span></span><span class="v">${fmt(p.sales_target)} 台</span></div>
       <div class="sum-row"><span class="k">主机单价<span class="calc">线上线下同价，不轻易打折</span></span><span class="v">${fmtMoney(p.unit_price)}</span></div>
       <div class="sum-total"><span class="k">产出合计（销售额）</span><span class="v">${fmtMoney(c.sales_amount)}</span></div>
-      <div class="sum-row is-out"><span class="k">机器成本<span class="calc">主机成本由总部承担，不计入点位投入</span></span><span class="v" style="color:var(--muted)">不计入</span></div>
     </div>
     <div class="net-card">
       <div class="nc-label">本点位净产出</div>
       <div class="nc-value${c.net < 0 ? ' neg' : ''}">${signedMoney(c.net)}</div>
       <div class="nc-sub">产出 ${fmtMoney(c.sales_amount)} − 投入 ${fmtMoney(c.invest)}</div>
       <div class="nc-metrics">
-        <div><div class="m-label">回本台数</div><div class="m-value">${fmt(c.breakeven)}</div></div>
         <div><div class="m-label">销售目标</div><div class="m-value">${fmt(p.sales_target)}</div></div>
       </div>
     </div>
   `;
 
   document.getElementById('footNote').innerHTML = `
-    <b>一句话</b>：投入 ${fmtMoney(c.invest)}，卖出 <b>${fmt(c.breakeven)} 台</b> 即可回本；
-    按销售目标 <b>${fmt(p.sales_target)} 台</b> × 单价 ${fmtMoney(p.unit_price)}，预计销售额 <b>${fmtMoney(c.sales_amount)}</b>，净产出 <b>${signedMoney(c.net)}</b>。
-    <br><b>口径说明</b>：收益<b>只来自主机销售收入</b>（销售目标 × 主机单价）；
-    场地费为点位投入，<b>机器成本由总部承担</b>，不计入点位投入。
+    <b>一句话</b>：按销售目标 <b>${fmt(p.sales_target)} 台</b> × 单价 ${fmtMoney(p.unit_price)}，预计销售额 <b>${fmtMoney(c.sales_amount)}</b>；
+    投入 ${fmtMoney(c.invest)}，净产出 <b>${signedMoney(c.net)}</b>。
   `;
 }
 
@@ -1308,6 +1342,61 @@ function renderAll(){
   renderSum(c);
 }
 
+// ===================== 右侧章节导航（总览全局 · 滚动高亮 · 点击跳转） =====================
+function initToc(){
+  var nav = document.getElementById('tocNav');
+  // 环境里无导航、或缺少真实浏览器滚动/布局 API（如自动化测试的最小 DOM 桩）时跳过
+  if (!nav || typeof window === 'undefined' || !window.addEventListener ||
+      typeof document.getElementById('top').getBoundingClientRect !== 'function' ||
+      typeof requestAnimationFrame !== 'function') return;
+
+  var btns = Array.prototype.slice.call(nav.querySelectorAll('.tn-btn, .tn-top'));
+
+  // 点击任意导航项：平滑滚动到目标章节 / 顶部
+  btns.forEach(function(b){
+    b.addEventListener('click', function(){
+      var target = document.getElementById(b.getAttribute('data-toc'));
+      if (target) target.scrollIntoView({ behavior:'smooth', block:'start' });
+    });
+  });
+
+  // 滚动时自动高亮当前所在章节（首个其顶部越过视口上沿 1/3 的章节为「当前」）
+  var map = [];  // [{ el, btn }]
+  btns.forEach(function(b){
+    var id = b.getAttribute('data-toc');
+    if (id === 'top') return;             // 回顶部按钮不参与高亮
+    var el = document.getElementById(id);
+    if (el) map.push({ el: el, btn: b });
+  });
+
+  var activeBtn = null;
+  function setActive(btn){
+    if (activeBtn === btn) return;
+    if (activeBtn) activeBtn.classList.remove('active');
+    activeBtn = btn;
+    if (activeBtn) activeBtn.classList.add('active');
+  }
+
+  var ticking = false;
+  function onScroll(){
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(function(){
+      ticking = false;
+      var probe = window.innerHeight * 0.35;      // 视口上方 35% 为判定线
+      var current = null;
+      for (var i = 0; i < map.length; i++){
+        var r = map[i].el.getBoundingClientRect();
+        if (r.top <= probe) current = map[i].btn;  // 取最后一个已越过判定线的章节
+      }
+      // 若无任何章节越过判定线（停在页首 hero），回落到第一项更贴近用户预期
+      setActive(current || (map.length ? map[0].btn : null));
+    });
+  }
+  window.addEventListener('scroll', onScroll, { passive:true });
+  onScroll();
+}
+
 // ===================== 初始化 =====================
 // 先用本地缓存快速渲染，再异步拉取线上数据覆盖重绘（保证拿到最新共享版本）
 (function init(){
@@ -1316,6 +1405,7 @@ function renderAll(){
   renderParams();
   renderAll();
   initTalks();
+  initToc();
 
   loadRemoteSaved().then(function(remote){
     if (!remote) return;
